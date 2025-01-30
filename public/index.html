@@ -107,17 +107,16 @@
       userInput.value = ""; // Clear input field
 
       try {
-        const response = await fetch("/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query }),
-        });
-
+        // Send a GET request to the backend
+        const response = await fetch(`/chat?query=${encodeURIComponent(query)}`);
         const data = await response.json();
 
-        // Extract the chatbot's response from the API
-        if (data.response && data.response.response) {
-          addMessage(data.response.response, false); // Add bot response to chat log
+        // Log the API response for debugging
+        console.log("API Response:", data);
+
+        // Extract the chatbot's response
+        if (data.response) {
+          addMessage(data.response, false); // Add bot response to chat log
         } else {
           addMessage("Error: No response from chatbot.", false);
         }

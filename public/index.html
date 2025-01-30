@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Chatbot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .chat-container {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 400px;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    #chat-log {
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 10px;
+      background-color: #f9f9f9;
+    }
+
+    #user-input {
+      width: calc(100% - 90px);
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    #send-btn {
+      width: 80px;
+      padding: 10px;
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #send-btn:hover {
+      background-color: #218838;
+    }
+
+    .message {
+      margin-bottom: 10px;
+    }
+
+    .user-message {
+      text-align: right;
+      color: #007bff;
+    }
+
+    .bot-message {
+      text-align: left;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <h1>Web Chatbot</h1>
+    <div id="chat-log"></div>
+    <div>
+      <input type="text" id="user-input" placeholder="Type your message...">
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const chatLog = document.getElementById("chat-log");
+    const userInput = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
+
+    // Function to add a message to the chat log
+    function addMessage(message, isUser) {
+      const messageDiv = document.createElement("div");
+      messageDiv.classList.add("message", isUser ? "user-message" : "bot-message");
+      messageDiv.textContent = message;
+      chatLog.appendChild(messageDiv);
+      chatLog.scrollTop = chatLog.scrollHeight; // Auto-scroll to the bottom
+    }
+
+    // Function to send user input to the chatbot API
+    async function sendMessage() {
+      const query = userInput.value.trim();
+      if (!query) return;
+
+      addMessage(query, true); // Add user message to chat log
+      userInput.value = ""; // Clear input field
+
+      try {
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query }),
+        });
+
+        const data = await response.json();
+        if (data.response) {
+          addMessage(data.response, false); // Add bot response to chat log
+        } else {
+          addMessage("Error: No response from chatbot.", false);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        addMessage("Error: Failed to connect to chatbot.", false);
+      }
+    }
+
+    // Event listeners
+    sendBtn.addEventListener("click", sendMessage);
+    userInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+</body>
+</html>

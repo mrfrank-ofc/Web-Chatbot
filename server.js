@@ -13,17 +13,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Chatbot API endpoint
-app.post("/chat", async (req, res) => {
-  const { query } = req.body;
+app.get("/chat", async (req, res) => {
+  const { query } = req.query; // Get the query from the request query parameters
 
   if (!query) {
     return res.status(400).json({ error: "Query is required" });
   }
 
   try {
+    // Call the external API using a GET request
     const response = await axios.get(
       `https://api.davidcyriltech.my.id/ai/chatbot?query=${encodeURIComponent(query)}`
     );
+
+    // Send the API response back to the frontend
     res.json({ response: response.data });
   } catch (error) {
     console.error("Error calling chatbot API:", error);
